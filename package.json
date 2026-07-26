@@ -1,0 +1,19 @@
+{
+  "name": "hirafund",
+  "version": "1.0.0",
+  "description": "HiraFund - Expense & pool money management app where members contribute to the admin and admin pays",
+  "private": true,
+  "scripts": {
+    "dev:client": "cd client && npm run dev",
+    "dev:server": "cd server && npm run dev",
+    "build": "cd client && npm install && npm run build",
+    "start": "cd server && npm start",
+    "seed": "cd server && npm run seed"
+  },
+  "workspaces": [
+    "client",
+    "server"
+  ],
+  "author": "",
+  "license": "ISC"
+}
