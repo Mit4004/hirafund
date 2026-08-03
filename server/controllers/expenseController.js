@@ -36,17 +36,22 @@ const createExpense = async (req, res) => {
         throw new Error(`User with ID ${member.userId} not found`);
       }
 
+      const amount = Number(member.amount);
+      if (!amount || amount <= 0) {
+        throw new Error(`Invalid amount for user ${user.name}`);
+      }
+
       const balanceBefore = user.balance;
-      const balanceAfter = balanceBefore - member.amount;
+      const balanceAfter = Math.round((balanceBefore - amount) * 100) / 100;
 
       user.balance = balanceAfter;
-      user.totalSpent += member.amount;
+      user.totalSpent = Math.round((user.totalSpent + amount) * 100) / 100;
       await user.save({ session });
 
       await Transaction.create([{
         userId: user._id,
         type: 'Deduction',
-        amount: member.amount,
+        amount,
         reason: description || 'Expense Deduction',
         balanceBefore,
         balanceAfter,

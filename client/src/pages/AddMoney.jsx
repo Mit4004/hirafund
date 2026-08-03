@@ -129,7 +129,7 @@ const AddMoney = () => {
             <div className="flex justify-between items-center mt-4 p-4 bg-gray-700 rounded-lg border border-gray-600">
               <span className="font-semibold text-gray-300">Total Money Being Added:</span>
               <span className="font-bold text-xl text-green-400">
-                ₹{totalBeingAdded}
+                ₹{totalBeingAdded.toFixed(2)}
               </span>
             </div>
           </div>

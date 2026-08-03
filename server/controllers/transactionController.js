@@ -7,9 +7,10 @@ const mongoose = require('mongoose');
 // @access  Private/Admin
 const addMoney = async (req, res) => {
   try {
-    const { userId, amount, reason } = req.body;
-    
-    if (amount <= 0) {
+    const { userId, reason } = req.body;
+    const amount = Number(req.body.amount);
+
+    if (!amount || amount <= 0) {
       return res.status(400).json({ message: 'Invalid amount' });
     }
 
@@ -19,10 +20,10 @@ const addMoney = async (req, res) => {
     }
 
     const balanceBefore = user.balance;
-    const balanceAfter = balanceBefore + amount;
+    const balanceAfter = Math.round((balanceBefore + amount) * 100) / 100;
 
     user.balance = balanceAfter;
-    user.totalDeposited += amount;
+    user.totalDeposited = Math.round((user.totalDeposited + amount) * 100) / 100;
     await user.save();
 
     const transaction = await Transaction.create({
@@ -81,9 +82,10 @@ const bulkAddMoney = async (req, res) => {
     }
 
     for (const deposit of deposits) {
-      const { userId, amount } = deposit;
-      
-      if (amount <= 0) {
+      const { userId } = deposit;
+      const amount = Number(deposit.amount);
+
+      if (!amount || amount <= 0) {
         throw new Error(`Invalid amount for user ID ${userId}`);
       }
 
@@ -93,10 +95,10 @@ const bulkAddMoney = async (req, res) => {
       }
 
       const balanceBefore = user.balance;
-      const balanceAfter = balanceBefore + amount;
+      const balanceAfter = Math.round((balanceBefore + amount) * 100) / 100;
 
       user.balance = balanceAfter;
-      user.totalDeposited += amount;
+      user.totalDeposited = Math.round((user.totalDeposited + amount) * 100) / 100;
       await user.save({ session });
 
       await Transaction.create([{
@@ -146,11 +148,11 @@ const deleteTransaction = async (req, res) => {
 
     // Reverse the balance effect
     if (transaction.type === 'Deposit') {
-      user.balance -= transaction.amount;
-      user.totalDeposited -= transaction.amount;
+      user.balance = Math.round((user.balance - transaction.amount) * 100) / 100;
+      user.totalDeposited = Math.max(0, Math.round((user.totalDeposited - transaction.amount) * 100) / 100);
     } else if (transaction.type === 'Deduction') {
-      user.balance += transaction.amount;
-      user.totalSpent -= transaction.amount;
+      user.balance = Math.round((user.balance + transaction.amount) * 100) / 100;
+      user.totalSpent = Math.max(0, Math.round((user.totalSpent - transaction.amount) * 100) / 100);
     }
 
     await user.save({ session });
