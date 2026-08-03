@@ -116,15 +116,18 @@ const getDashboardStats = async (req, res) => {
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const expensesToday = await Expense.aggregate([
-      { $match: { createdAt: { $gte: startOfDay } } },
-      { $group: { _id: null, total: { $sum: '$totalBill' } } }
+    // Use Deduction transactions as source of truth so deleted transactions
+    // are automatically excluded (Expense documents may still exist even after
+    // their transactions are deleted/reversed).
+    const expensesToday = await Transaction.aggregate([
+      { $match: { type: 'Deduction', createdAt: { $gte: startOfDay } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
     const todayExpense = expensesToday.length > 0 ? expensesToday[0].total : 0;
 
-    const expensesMonth = await Expense.aggregate([
-      { $match: { createdAt: { $gte: startOfMonth } } },
-      { $group: { _id: null, total: { $sum: '$totalBill' } } }
+    const expensesMonth = await Transaction.aggregate([
+      { $match: { type: 'Deduction', createdAt: { $gte: startOfMonth } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } }
     ]);
     const monthExpense = expensesMonth.length > 0 ? expensesMonth[0].total : 0;
 
@@ -134,13 +137,14 @@ const getDashboardStats = async (req, res) => {
     const recentTransactions = await Transaction.find().sort({ createdAt: -1 }).limit(10).populate('userId', 'name');
 
     const walletDistribution = friends.map(f => ({ name: f.name, balance: f.balance }));
-    
-    // Monthly expenses for graph
-    const monthlyGraph = await Expense.aggregate([
+
+    // Monthly expense graph — also from Deduction transactions
+    const monthlyGraph = await Transaction.aggregate([
+      { $match: { type: 'Deduction' } },
       {
         $group: {
-          _id: { $month: "$createdAt" },
-          total: { $sum: "$totalBill" }
+          _id: { $month: '$createdAt' },
+          total: { $sum: '$amount' }
         }
       },
       { $sort: { _id: 1 } }
