@@ -52,7 +52,7 @@ const createExpense = async (req, res) => {
         userId: user._id,
         type: 'Deduction',
         amount,
-        reason: description || 'Expense Deduction',
+        reason: restaurantName || description || 'Expense Deduction',
         balanceBefore,
         balanceAfter,
         expenseId,
