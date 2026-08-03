@@ -36,10 +36,6 @@ const createExpense = async (req, res) => {
         throw new Error(`User with ID ${member.userId} not found`);
       }
 
-      if (user.balance < member.amount) {
-        throw new Error(`Insufficient Balance for user ${user.name}`);
-      }
-
       const balanceBefore = user.balance;
       const balanceAfter = balanceBefore - member.amount;
 
