@@ -42,6 +42,56 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* Member Balances */}
+      <div className="mb-8">
+        <h2 className="text-xl font-bold mb-4">Member Balances</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {stats.walletDistribution?.map((member, idx) => {
+            const isNegative = member.balance < 0;
+            const isLow = !isNegative && member.balance < 500;
+            return (
+              <div
+                key={idx}
+                className={`bg-gray-800 rounded-xl p-4 border shadow-md flex flex-col gap-2 ${
+                  isNegative ? 'border-red-600' : isLow ? 'border-yellow-600' : 'border-gray-700'
+                }`}
+              >
+                {/* Avatar initial */}
+                <div className="flex items-center gap-2">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0 ${
+                    isNegative ? 'bg-red-900 text-red-300' : isLow ? 'bg-yellow-900 text-yellow-300' : 'bg-blue-900 text-blue-300'
+                  }`}>
+                    {member.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="font-medium text-sm truncate">{member.name}</span>
+                </div>
+
+                {/* Balance */}
+                <p className={`text-2xl font-bold ${
+                  isNegative ? 'text-red-400' : isLow ? 'text-yellow-400' : 'text-green-400'
+                }`}>
+                  ₹{member.balance.toFixed(2)}
+                </p>
+
+                {/* Status badge */}
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full self-start ${
+                  isNegative
+                    ? 'bg-red-900/60 text-red-300'
+                    : isLow
+                    ? 'bg-yellow-900/60 text-yellow-300'
+                    : 'bg-green-900/60 text-green-300'
+                }`}>
+                  {isNegative ? 'In Debt' : isLow ? 'Low' : 'Good'}
+                </span>
+              </div>
+            );
+          })}
+          {(!stats.walletDistribution || stats.walletDistribution.length === 0) && (
+            <p className="text-gray-500 col-span-full">No members found.</p>
+          )}
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         <div className="bg-gray-800 p-6 rounded-lg shadow-lg border border-gray-700">
           <h2 className="text-xl font-bold mb-4">Monthly Expense Graph</h2>
