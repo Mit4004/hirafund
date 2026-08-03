@@ -122,4 +122,50 @@ const bulkAddMoney = async (req, res) => {
   }
 };
 
-module.exports = { addMoney, bulkAddMoney, getAllTransactions, getMyTransactions };
+// @desc    Delete a transaction and reverse its balance effect
+// @route   DELETE /api/transactions/:id
+// @access  Private/Admin
+const deleteTransaction = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const transaction = await Transaction.findById(req.params.id).session(session);
+    if (!transaction) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: 'Transaction not found' });
+    }
+
+    const user = await User.findById(transaction.userId).session(session);
+    if (!user) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Reverse the balance effect
+    if (transaction.type === 'Deposit') {
+      user.balance -= transaction.amount;
+      user.totalDeposited -= transaction.amount;
+    } else if (transaction.type === 'Deduction') {
+      user.balance += transaction.amount;
+      user.totalSpent -= transaction.amount;
+    }
+
+    await user.save({ session });
+    await Transaction.findByIdAndDelete(req.params.id).session(session);
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.json({ message: 'Transaction deleted and balance reversed successfully' });
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+    console.error('deleteTransaction Error:', error);
+    res.status(500).json({ message: error.message || 'Server error' });
+  }
+};
+
+module.exports = { addMoney, bulkAddMoney, getAllTransactions, getMyTransactions, deleteTransaction };

@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut, LayoutDashboard, Receipt, Wallet, UserPlus } from 'lucide-react';
+import { Menu, X, LogOut, LayoutDashboard, Receipt, Wallet, UserPlus, List } from 'lucide-react';
 
 const Layout = ({ children }) => {
   const { user, logout } = useContext(AuthContext);
@@ -19,6 +19,7 @@ const Layout = ({ children }) => {
     { name: 'Add Expense', path: '/admin/expense', icon: Receipt },
     { name: 'Add Money', path: '/admin/add-money', icon: Wallet },
     { name: 'Add Friend', path: '/admin/add-friend', icon: UserPlus },
+    { name: 'Transactions', path: '/admin/transactions', icon: List },
   ] : [];
 
   const isActive = (path) => location.pathname === path;

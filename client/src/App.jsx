@@ -9,6 +9,7 @@ import UserDashboard from './pages/UserDashboard';
 import AddExpense from './pages/AddExpense';
 import AddFriend from './pages/AddFriend';
 import AddMoney from './pages/AddMoney';
+import Transactions from './pages/Transactions';
 import Layout from './layouts/Layout';
 
 const RootRoute = () => {
@@ -40,6 +41,7 @@ function App() {
               <Route path="/admin/expense" element={<AddExpense />} />
               <Route path="/admin/add-friend" element={<AddFriend />} />
               <Route path="/admin/add-money" element={<AddMoney />} />
+              <Route path="/admin/transactions" element={<Transactions />} />
             </Route>
           </Route>
           
