@@ -116,6 +116,7 @@ const AddMoney = () => {
                           className="w-full max-w-[150px] p-2 bg-gray-800 rounded border border-gray-600 focus:outline-none focus:border-primary text-white"
                           value={memberInputs[friend._id] || ''}
                           onChange={(e) => handleAmountChange(friend._id, e.target.value)}
+                          onWheel={(e) => e.target.blur()}
                           placeholder="0"
                         />
                       </td>

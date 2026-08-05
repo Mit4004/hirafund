@@ -74,3 +74,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Disable scroll-to-change and hide spinners on number inputs */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
