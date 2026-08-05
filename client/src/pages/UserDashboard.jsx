@@ -6,6 +6,7 @@ const UserDashboard = () => {
   const { user } = useContext(AuthContext);
   const [profile, setProfile] = useState(null);
   const [transactions, setTransactions] = useState([]);
+  const [showLowBalanceModal, setShowLowBalanceModal] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,6 +17,9 @@ const UserDashboard = () => {
         ]);
         setProfile(profileRes.data);
         setTransactions(txRes.data);
+        if (profileRes.data.balance < 100) {
+          setShowLowBalanceModal(true);
+        }
       } catch (error) {
         console.error('Error fetching user data', error);
       }
@@ -78,6 +82,26 @@ const UserDashboard = () => {
           </table>
         </div>
       </div>
+
+      {/* Low Balance Modal */}
+      {showLowBalanceModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-gray-800 rounded-xl p-6 sm:p-8 max-w-sm w-full border border-gray-700 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h2 className="text-xl font-bold text-red-400 mb-2">Low Balance Alert</h2>
+            <p className="text-gray-300 mb-6">
+              Your current balance is <span className="font-bold text-white">₹{profile.balance}</span>. You need to recharge to avoid going into debt.
+            </p>
+            <div className="flex justify-end">
+              <button 
+                onClick={() => setShowLowBalanceModal(false)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-white font-medium transition-colors"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

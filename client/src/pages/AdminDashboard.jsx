@@ -2,6 +2,19 @@ import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
+const getBalanceColor = (balance, minBalance, maxBalance) => {
+  if (minBalance === maxBalance) return '#4ade80';
+  
+  let percentage = (balance - minBalance) / (maxBalance - minBalance);
+  percentage = Math.max(0, Math.min(1, percentage));
+  
+  const r = Math.round(248 - (248 - 74) * percentage);
+  const g = Math.round(113 + (222 - 113) * percentage);
+  const b = Math.round(113 + (128 - 113) * percentage);
+  
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
 
@@ -18,6 +31,13 @@ const AdminDashboard = () => {
   }, []);
 
   if (!stats) return <div className="p-8 text-center text-white">Loading...</div>;
+
+  const minBalance = stats.walletDistribution?.length > 0 
+    ? Math.min(...stats.walletDistribution.map(m => m.balance)) 
+    : 0;
+  const maxBalance = stats.walletDistribution?.length > 0
+    ? Math.max(...stats.walletDistribution.map(m => m.balance))
+    : 0;
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 text-white min-h-screen bg-gray-900">
@@ -52,9 +72,8 @@ const AdminDashboard = () => {
             return (
               <div
                 key={idx}
-                className={`bg-gray-800 rounded-xl p-4 border shadow-md flex flex-col gap-2 ${
-                  isNegative ? 'border-red-600' : isLow ? 'border-yellow-600' : 'border-gray-700'
-                }`}
+                className="bg-gray-800 rounded-xl p-4 border shadow-md flex flex-col gap-2"
+                style={{ borderColor: getBalanceColor(member.balance, minBalance, maxBalance) }}
               >
                 {/* Avatar initial */}
                 <div className="flex items-center gap-2">
@@ -67,9 +86,10 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* Balance */}
-                <p className={`text-2xl font-bold ${
-                  isNegative ? 'text-red-400' : isLow ? 'text-yellow-400' : 'text-green-400'
-                }`}>
+                <p 
+                  className="text-2xl font-bold"
+                  style={{ color: getBalanceColor(member.balance, minBalance, maxBalance) }}
+                >
                   ₹{member.balance.toFixed(2)}
                 </p>
 
