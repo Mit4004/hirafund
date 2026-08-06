@@ -81,8 +81,6 @@ const UserDashboard = () => {
           </table>
         </div>
       </div>
-
-      </div>
     </div>
   );
 };
